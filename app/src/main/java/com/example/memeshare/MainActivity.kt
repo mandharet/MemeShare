@@ -5,10 +5,9 @@ import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -29,13 +28,14 @@ class MainActivity : AppCompatActivity() {
     private fun showMeme(){
 
         progressbar.visibility= View.VISIBLE
-        val url = "https://meme-api.herokuapp.com/gimme"
+        val urllink = "https://meme-api.herokuapp.com/gimme"   //api urllink
 
         val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.GET, url, null,
+            Request.Method.GET, urllink, null,
             { response ->
-                currentImgUrl=response.getString("url")
+                currentImgUrl=response.getString("url")         //grab url as key-value string named url
 
+                //glide library to load image
                 Glide.with(this).load(currentImgUrl).listener(object: RequestListener<Drawable>{
 
                     override fun onLoadFailed(
@@ -59,21 +59,23 @@ class MainActivity : AppCompatActivity() {
                         return false
                     }
                 } ).into(memeImage)
+                //glide call ends
             },
             { error ->
                 // TODO: Handle error
+                Toast.makeText(this, "Some Error Occured",Toast.LENGTH_LONG).show()
             })
-
+    //call to singleton class instance
     MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
     }
-    fun shareMeme(view: android.view.View) {
+    fun shareMeme(view: View) {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type= "text/plain"
         intent.putExtra(Intent.EXTRA_TEXT,"$currentImgUrl")
         val chooser = Intent.createChooser(intent, "share this meme")
         startActivity(chooser)
     }
-    fun nextMeme(view: android.view.View) {
+    fun nextMeme(view: View) {
         showMeme()
     }
 }
